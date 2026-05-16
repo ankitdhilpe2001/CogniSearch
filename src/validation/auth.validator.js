@@ -11,7 +11,7 @@ const validate = (req, res, next) => {
     });
 };
 
-export const authValidation = [
+export const registerValidation = [
     body("username")
         .trim()
         .notEmpty()
