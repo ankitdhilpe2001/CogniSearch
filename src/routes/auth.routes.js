@@ -6,4 +6,6 @@ const authRouter = Router();
 
 authRouter.post("/register", registerValidation, authController.handleRegister);
 
+authRouter.get("/verify-email",authController.handleVerifyEmail );
+
 export default authRouter;

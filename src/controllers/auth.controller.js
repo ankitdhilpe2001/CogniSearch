@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import { sendEmail } from "../services/mail.service.js";
+import jwt from "jsonwebtoken"
+
 
 async function handleRegister(req, res, next) {
     try {
@@ -20,6 +22,12 @@ async function handleRegister(req, res, next) {
 
         const user = await User.create({ username, email, password });
 
+        const payload = {
+          id: user._id
+        }
+
+        const emailVerificationtoken = jwt.sign(payload, process.env.JWT_SECRET,{expiresIn:"1d"})
+
         let emailSent = true;
         try {
             await sendEmail({
@@ -37,6 +45,12 @@ async function handleRegister(req, res, next) {
           
                 <p>
                   We're excited to have you on board 🎉
+                </p>
+
+                <p>
+                  Please verify your account by clicking the Link below 👇
+                  <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationtoken}">Verify your email here</a>
+                  If you didn’t create this account, ignore this email
                 </p>
           
           
@@ -77,6 +91,50 @@ async function handleRegister(req, res, next) {
     }
 }
 
+async function handleVerifyEmail(req, res, next) {
+    try {
+        const { token } = req.query;
+
+        if (!token) {
+            return res.status(400).json({ message: "Verification token is required" });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid token — user not found" });
+        }
+
+        if (user.verified) {
+            return res.send(`
+              <h1>Already verified</h1>
+              <p>Your email is already verified. You can log in to your account.</p>
+            `);
+        }
+
+        user.verified = true;
+        await user.save();
+
+        return res.send(`
+          <h1>Email verified successfully</h1>
+          <p>Your email has been verified. You can now log in to your account.</p>
+        `);
+    } catch (error) {
+        if (
+            error.name === "JsonWebTokenError" ||
+            error.name === "TokenExpiredError"
+        ) {
+            return res.status(400).json({
+                message: "Invalid or expired verification link",
+            });
+        }
+        next(error);
+    }
+}
+
 export default {
     handleRegister,
+    handleVerifyEmail
 };
