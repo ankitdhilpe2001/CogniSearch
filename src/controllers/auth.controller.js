@@ -168,9 +168,13 @@ async function handleLogin(req, res, next) {
             { expiresIn: "7d" }
         );
 
+        const isProduction =
+            process.env.NODE_ENV === "production" ||
+            process.env.NODE_ENVIRONMENT === "production";
+
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: isProduction,
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
@@ -189,8 +193,26 @@ async function handleLogin(req, res, next) {
     }
 }
 
+async function handleGetMe(req, res, next) {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+        return res.status(200).json({
+            message: "User found",
+            user,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export default {
     handleRegister,
     handleVerifyEmail,
     handleLogin,
+    handleGetMe
 };
