@@ -1,0 +1,42 @@
+import axios from "axios";
+
+const api = axios.create({
+    baseURL:"http://localhost:3000",
+    withCredentials:true
+})
+
+// functions to interact 
+
+//Login Function 
+// Method: POST,
+async function register({username, email, password}){
+    try {
+        const response = await api.post("/api/auth/register",{username,email,password})
+        return response.data;
+    } catch (error) {
+        const message = error.response?.data?.message || "Something went wrong while registering";
+        throw new Error(message);
+      }
+}
+
+async function login({email, password}){
+    try {
+        const response = await api.post("/api/auth/login",{email, password});
+        return response.data
+    } catch (error) {
+        const message = error.response?.data?.message || "Something went wrong while Loging In";
+        throw new Error(message);
+    }
+}
+
+async function getMe(){
+    try {
+        const response = await api.get("/api/auth/get-me")
+        return response.data
+    } catch (error) {
+        const message = error.response?.data?.message || "Something went wrong while fetching user info";
+        throw new Error(message);
+    }
+}
+
+export { register, login, getMe }
