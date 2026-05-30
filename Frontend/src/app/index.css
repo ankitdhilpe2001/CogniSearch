@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+:root {
+  /* Surfaces */
+  --background: #07122a;
+  --surface: #101b33;
+  --surface-bright: #2f3952;
+  --surface-lowest: #030d25;
+
+  /* Brand & Accent */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.4);
+
+  /* Typography */
+  --foreground: #ffffff;
+  --secondary: #94a3b8;
+  --muted: #64748b;
+  --placeholder: #475569;
+
+  /* Semantic */
+  --success: #10b981;
+  --outline: rgba(47, 57, 82, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-lowest: var(--surface-lowest);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+
+  --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-placeholder: var(--placeholder);
+
+  --color-success: var(--success);
+  --color-outline: var(--outline);
+
+  --shadow-glow: 0 0 20px var(--accent-glow);
+  --shadow-glow-lg: 0 0 25px rgba(59, 130, 246, 0.5);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}

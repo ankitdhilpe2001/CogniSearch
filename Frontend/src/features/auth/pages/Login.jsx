@@ -26,20 +26,20 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#07122a] px-4 font-sans selection:bg-blue-500/30">
-      <div className="w-full max-w-md rounded-2xl bg-[#101b33] p-10 border border-[#2f3952]/30 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md rounded-2xl bg-surface p-10 border border-outline shadow-2xl">
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-white">
-            Cogni<span className="text-blue-500">Search</span>
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Cogni<span className="text-accent">Search</span>
           </h2>
-          <p className="mt-3 text-sm text-slate-400">
+          <p className="mt-3 text-sm text-secondary">
             Enter your credentials to access your threads
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {successMessage && (
-            <p className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400">
+            <p className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
               {successMessage}
             </p>
           )}
@@ -53,62 +53,75 @@ const Login = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2"
             >
               Email Address
             </label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
-              autoComplete="email"
-              required
-              className="w-full rounded-xl border border-[#2f3952] bg-[#07122a] px-4 py-3 text-white placeholder:text-slate-600 outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-            />
+            <div className="relative group">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors">
+                <i className="ri-mail-line text-[18px]" aria-hidden="true" />
+              </span>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                autoComplete="email"
+                required
+                className="w-full rounded-xl border border-surface-bright bg-background pl-11 pr-4 py-3 text-foreground placeholder:text-placeholder outline-none transition-all duration-200 focus:border-accent focus:ring-2 focus:ring-accent/20"
+              />
+            </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-500"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted"
               >
                 Password
               </label>
-              <a href="#" className="text-xs font-medium text-blue-500 hover:text-blue-400 transition-colors">
+              <a href="#" className="text-xs font-medium text-accent hover:text-accent/80 transition-colors">
                 Forgot password?
               </a>
             </div>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-              className="w-full rounded-xl border border-[#2f3952] bg-[#07122a] px-4 py-3 text-white placeholder:text-slate-600 outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-            />
+            <div className="relative group">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors">
+                <i className="ri-lock-line text-[18px]" aria-hidden="true" />
+              </span>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+                className="w-full rounded-xl border border-surface-bright bg-background pl-11 pr-4 py-3 text-foreground placeholder:text-placeholder outline-none transition-all duration-200 focus:border-accent focus:ring-2 focus:ring-accent/20"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full overflow-hidden rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#101b33] disabled:cursor-not-allowed disabled:opacity-60"
+            className="group relative w-full overflow-hidden rounded-xl bg-accent-hover py-3.5 text-sm font-bold text-foreground transition-all duration-300 hover:bg-accent hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span className="relative z-10">
+            <span className="relative z-10 flex items-center justify-center gap-2">
               {loading ? 'Signing in...' : 'Sign in to CogniSearch'}
+              {!loading && (
+                <i className="ri-arrow-right-line text-[18px] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              )}
             </span>
           </button>
 
           <div className="text-center mt-6">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted">
               Don't have an account?{' '}
-              <Link to="/register" className="font-semibold text-white hover:text-blue-400 transition-colors">
+              <Link to="/register" className="font-semibold text-foreground hover:text-accent transition-colors">
                 Create one for free
               </Link>
             </p>
