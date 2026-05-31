@@ -11,9 +11,7 @@ import Footer from "../components/Footer.jsx";
 import MessageList from "../components/MessageList.jsx";
 
 const Dashboard = () => {
-  const { chats, initializeSocket, handleSendMessage, handleNewChat, loading, error, currentChatId, } = useChat();
-
-  const [activeNav, setActiveNav] = useState("home");
+  const { chats, initializeSocket, handleSendMessage, handleNewChat, handleGetChats, handleSelectChat, loading, error, currentChatId } = useChat();
 
   const [query, setQuery] = useState("");
 
@@ -25,6 +23,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     initializeSocket();
+    handleGetChats().catch(() => {
+      // error is stored in Redux by useChat
+    });
   }, []);
 
   const handleSubmit = async () => {
@@ -40,12 +41,17 @@ const Dashboard = () => {
   return (
     <main className="w-full h-screen flex bg-background">
       <Sidebar
-        activeNav={activeNav}
-        setActiveNav={setActiveNav}
+        chats={chats}
+        currentChatId={currentChatId}
         onNewThread={() => {
           setQuery("");
-
           handleNewChat();
+        }}
+        onSelectChat={(chatId) => {
+          setQuery("");
+          handleSelectChat(chatId).catch(() => {
+            // error is stored in Redux by useChat
+          });
         }}
       />
 

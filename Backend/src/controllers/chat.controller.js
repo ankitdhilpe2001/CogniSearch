@@ -67,7 +67,7 @@ async function getChats(req, res, next) {
   try {
     const user = req.user;
 
-    const chats = await Chat.find({ chat: user._id });
+    const chats = await Chat.find({ user: user.id });
 
     return res
       .status(200)
