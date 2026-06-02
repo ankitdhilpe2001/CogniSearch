@@ -13,6 +13,8 @@
   "type": "module",
   "dependencies": {
     "@langchain/google-genai": "^2.1.31",
+    "@langchain/mistralai": "^1.1.0",
+    "@tavily/core": "^0.7.5",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -23,6 +25,7 @@
     "langchain": "^1.4.1",
     "mongoose": "^9.6.2",
     "nodemailer": "^8.0.7",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "zod": "^4.4.3"
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { useChat } from "../hook/useChat.js";
 
@@ -11,7 +11,18 @@ import Footer from "../components/Footer.jsx";
 import MessageList from "../components/MessageList.jsx";
 
 const Dashboard = () => {
-  const { chats, initializeSocket, handleSendMessage, handleNewChat, handleGetChats, handleSelectChat, loading, error, currentChatId } = useChat();
+  const {
+    chats,
+    initializeSocket,
+    handleSendMessage,
+    handleNewChat,
+    handleGetChats,
+    handleSelectChat,
+    handleDeleteChat:deleteChatById,
+    loading,
+    error,
+    currentChatId,
+  } = useChat();
 
   const [query, setQuery] = useState("");
 
@@ -24,35 +35,85 @@ const Dashboard = () => {
   useEffect(() => {
     initializeSocket();
     handleGetChats().catch(() => {
-      // error is stored in Redux by useChat
+      // Error is already stored in Redux
     });
   }, []);
 
-  const handleSubmit = async () => {
+  /*
+    useCallback memoizes the function.
+
+    Without useCallback:
+    - A new handleSubmit function is created
+      on every Dashboard re-render.
+
+    With useCallback:
+    - React stores the same function reference
+      until dependencies change.
+
+    Useful because this function is passed
+    to child components.
+  */
+  const handleSubmit = useCallback(async () => {
     if (!query.trim() || loading) return;
+
     try {
-      await handleSendMessage({ message: query.trim(), chatId: currentChatId })
+      await handleSendMessage({
+        message: query.trim(),
+        chatId: currentChatId,
+      });
+
       setQuery("");
     } catch {
-      // error is stored in Redux by useChat
+      // Error already handled in Redux
     }
-  };
+  }, [query, loading, currentChatId, handleSendMessage]);
+
+  /*
+    Memoized new chat handler.
+
+    This prevents Sidebar from receiving
+    a new function reference every render.
+  */
+  const handleNewThread = useCallback(() => {
+    setQuery("");
+    handleNewChat();
+  }, [handleNewChat]);
+
+  /*
+    Memoized chat selection handler.
+
+    Function only changes if handleSelectChat changes.
+  */
+  const handleChatSelect = useCallback(
+    (chatId) => {
+      setQuery("");
+
+      handleSelectChat(chatId).catch(() => {
+        // Error already handled in Redux
+      });
+    },
+    [handleSelectChat],
+  );
+
+
+  const handleDeleteChat = useCallback((chatId)=>{
+    deleteChatById({chatId}).catch(()=>{
+      //error handled in redux
+    });
+  },[deleteChatById]);
 
   return (
     <main className="w-full h-screen flex bg-background">
       <Sidebar
         chats={chats}
         currentChatId={currentChatId}
-        onNewThread={() => {
-          setQuery("");
-          handleNewChat();
-        }}
-        onSelectChat={(chatId) => {
-          setQuery("");
-          handleSelectChat(chatId).catch(() => {
-            // error is stored in Redux by useChat
-          });
-        }}
+        /*
+          Passing memoized functions
+          instead of inline arrow functions.
+        */
+        onNewThread={handleNewThread}
+        onSelectChat={handleChatSelect}
+        onDeleteChat={handleDeleteChat}
       />
 
       <div className="flex-1 flex flex-col relative overflow-hidden">
@@ -61,15 +122,10 @@ const Dashboard = () => {
             className="absolute pointer-events-none"
             style={{
               top: "30%",
-
               left: "50%",
-
               transform: "translate(-50%, -50%)",
-
               width: "600px",
-
               height: "400px",
-
               background:
                 "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 70%)",
             }}
@@ -87,15 +143,18 @@ const Dashboard = () => {
             <MessageList messages={messages} loading={loading} />
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 gap-8">
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 gap-2">
             <h1 className="text-[clamp(32px,4vw,48px)] font-bold tracking-tight text-center leading-tight text-foreground">
-              Where knowledge begins
+              CogniSearch
             </h1>
+            <p className="text-accent">Where Knowledge Begins!</p>
           </div>
         )}
 
         <div
-          className={`px-6 ${hasMessages ? "pb-4 pt-2" : "pb-10"} flex flex-col items-center gap-4`}
+          className={`px-6 ${
+            hasMessages ? "pb-4 pt-2" : "pb-10"
+          } flex flex-col items-center gap-4`}
         >
           {error && (
             <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400 max-w-[720px] w-full">

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { initializeSocket } from "../service/chat.socket";
-import { sendMessage, getChats, getMessages } from "../service/chat.api";
+import { sendMessage, getChats, getMessages, deleteChat } from "../service/chat.api";
 import { setLoading, setChats, setCurrentChatId, setError } from "../chat.slice";
 
 export const useChat = () => {
@@ -109,6 +109,34 @@ export const useChat = () => {
     }
   }
 
+
+ async function handleDeleteChat({ chatId }) {
+  const id = String(chatId);
+
+  try {
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+
+    const data = await deleteChat({ chatId: id });    //call api to delete chat from backend
+
+    const updatedChats = { ...chats };    //cannot mutate the chats obj directly so 
+
+    delete updatedChats[id];    //deletes the chat from the redux state 
+    dispatch(setChats(updatedChats)); //and updates the chats 
+
+    if (String(currentChatId) === id) {
+      dispatch(setCurrentChatId(null));
+    }
+
+    return data;
+  } catch (err) {
+    dispatch(setError(err.message));
+    throw err;
+  } finally {
+    dispatch(setLoading(false));
+  }
+}
+
   return {
     chats,
     currentChatId,
@@ -119,5 +147,6 @@ export const useChat = () => {
     handleNewChat,
     handleGetChats,
     handleSelectChat,
+    handleDeleteChat
   };
 };

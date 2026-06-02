@@ -2,6 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import {HumanMessage, SystemMessage, AIMessage} from "langchain"
 import {ChatMistralAI} from "@langchain/mistralai"
 
+
 //gemini model
 const geminiModel = new ChatGoogleGenerativeAI({
   model: "gemini-2.5-flash-lite",
