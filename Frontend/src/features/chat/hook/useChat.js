@@ -9,28 +9,45 @@ export const useChat = () => {
 
   async function handleSendMessage({ message, chatId }) {
     const activeChatId = chatId ?? currentChatId ?? undefined;
+    const optimisticChatId = activeChatId ? String(activeChatId) : `temp-${Date.now()}`;
+    const priorChat = activeChatId ? chats[String(activeChatId)] : null;
+    const previousChats = chats;
+    const previousCurrentChatId = currentChatId;
+    const optimisticMessages = [
+      ...(priorChat?.messages ?? []),
+      { role: "user", content: message },
+    ];
     
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
-
-      const data = await sendMessage({ message, chatId: activeChatId });
-      const id = String(data.chatId);
-      const priorChat = activeChatId ? chats[String(activeChatId)] : null;
-
-      //chats is object 
+      //set the user message in chats before calling sendMessage function 
       dispatch(
         setChats({
-          ...chats,[id]: 
-          {chatId: id,
-            title: data.title ??
-            priorChat?.title ?? "New Chat",
+          ...chats,
+          [optimisticChatId]: {
+            chatId: optimisticChatId,
+            title: priorChat?.title ?? "New Chat",
             updatedAt: new Date().toISOString(),
-            messages: [
-              ...(priorChat?.messages ?? []),
-              { role: "user", content: message },
-              { role: "assistant", content: data.aimessage },
-            ],
+            messages: optimisticMessages,
+          },
+        })
+      );
+      dispatch(setCurrentChatId(optimisticChatId));
+
+      //call api to sendMessage
+      const data = await sendMessage({ message, chatId: activeChatId });
+      const id = String(data.chatId);
+
+      //after the ai response arrives save it into chats with the user message.
+      dispatch(
+        setChats({
+          ...chats,
+          [id]: {
+            chatId: id,
+            title: data.title ?? priorChat?.title ?? "New Chat",
+            updatedAt: new Date().toISOString(),
+            messages: [...optimisticMessages, { role: "assistant", content: data.aimessage }],
           },
         })
       );
@@ -38,6 +55,8 @@ export const useChat = () => {
 
       return data;
     } catch (err) {
+      dispatch(setChats(previousChats));
+      dispatch(setCurrentChatId(previousCurrentChatId));
       dispatch(setError(err.message));
       throw err;
     } finally {

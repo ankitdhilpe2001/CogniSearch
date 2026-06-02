@@ -54,16 +54,19 @@ const Dashboard = () => {
     to child components.
   */
   const handleSubmit = useCallback(async () => {
-    if (!query.trim() || loading) return;
+    const submittedQuery = query.trim();
+    if (!submittedQuery || loading) return;
+
+    setQuery("");
 
     try {
       await handleSendMessage({
-        message: query.trim(),
+        message: submittedQuery,
         chatId: currentChatId,
       });
 
-      setQuery("");
     } catch {
+      setQuery(submittedQuery);
       // Error already handled in Redux
     }
   }, [query, loading, currentChatId, handleSendMessage]);

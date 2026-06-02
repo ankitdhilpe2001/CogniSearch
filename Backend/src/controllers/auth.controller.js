@@ -49,7 +49,7 @@ async function handleRegister(req, res, next) {
 
                 <p>
                   Please verify your account by clicking the Link below 👇
-                  <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationtoken}">Verify your email here</a>
+                  <a href="http://localhost:8080/api/auth/verify-email?token=${emailVerificationtoken}">Verify your email here</a>
                   If you didn’t create this account, ignore this email
                 </p>
           
