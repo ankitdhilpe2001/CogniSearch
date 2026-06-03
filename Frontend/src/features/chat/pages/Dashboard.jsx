@@ -136,7 +136,7 @@ const Dashboard = () => {
         )}
 
         {hasMessages ? (
-          <div className="flex-1 overflow-y-auto px-6 py-8">
+          <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-8">
             {activeChat?.title && (
               <h2 className="mb-6 text-center text-sm font-medium text-secondary">
                 {activeChat.title}

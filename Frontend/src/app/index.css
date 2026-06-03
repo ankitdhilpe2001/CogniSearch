@@ -53,3 +53,14 @@
     background-color: color-mix(in srgb, var(--accent) 30%, transparent);
   }
 }
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

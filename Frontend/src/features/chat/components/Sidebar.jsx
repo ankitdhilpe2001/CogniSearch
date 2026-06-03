@@ -109,7 +109,7 @@ const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat
         New Chat
       </button>
 
-      <div className="flex-1 overflow-y-auto min-h-0 -mx-1 px-1">
+      <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 -mx-1 px-1">
         <p className="px-2 mb-2 font-mono text-[10px] uppercase tracking-wider text-muted">
           Recent
         </p>
