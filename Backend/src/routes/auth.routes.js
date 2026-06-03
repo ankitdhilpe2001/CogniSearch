@@ -13,4 +13,6 @@ authRouter.get("/verify-email",authController.handleVerifyEmail );
 
 authRouter.get("/get-me",authenticateUser, authController.handleGetMe)
 
+authRouter.post("/logout", authController.handleLogout);
+
 export default authRouter;

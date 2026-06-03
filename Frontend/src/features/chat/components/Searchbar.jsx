@@ -38,13 +38,6 @@ const Searchbar = ({ value, onChange, onSubmit, loading = false }) => {
 
       <div className="flex-1" />
 
-      {/* Pro Toggle */}
-      <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-secondary tracking-wide">
-        PRO
-        <div className="w-7 h-4 bg-accent rounded-full relative cursor-pointer">
-          <div className="absolute top-0.5 right-0.5 w-3 h-3 bg-white rounded-full" />
-        </div>
-      </div>
 
       {/* Send */}
       <button

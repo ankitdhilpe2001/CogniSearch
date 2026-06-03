@@ -39,4 +39,14 @@ async function getMe(){
     }
 }
 
-export { register, login, getMe }
+async function logout(){
+    try {
+        const response = await api.post("/api/auth/logout");
+        return response.data;
+    } catch (error) {
+        const message = error.response?.data?.message || "Something went wrong while logging out";
+        throw new Error(message);
+    }
+}
+
+export { register, login, getMe, logout }

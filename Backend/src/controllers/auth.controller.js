@@ -210,9 +210,28 @@ async function handleGetMe(req, res, next) {
     }
 }
 
+async function handleLogout(req, res, next){
+  try {
+    const isProduction =
+      process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENVIRONMENT === "production";
+
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export default {
     handleRegister,
     handleVerifyEmail,
     handleLogin,
-    handleGetMe
+    handleGetMe,
+    handleLogout
 };

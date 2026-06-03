@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useDispatch, useSelector } from "react-redux"
 import {setUser,setLoading,setError} from "../auth.slice.js"
-import { register,login, getMe } from "../services/auth.api.js"
+import { register,login, getMe, logout } from "../services/auth.api.js"
 
 export function useAuth(){
 
@@ -51,5 +52,21 @@ export function useAuth(){
         }
     }
 
-    return { user, loading, error, handleRegister, handleLogin, handleGetme };
+    async function handleLogout(){
+        try {
+            dispatch(setLoading(true));
+            dispatch(setError(null));
+            const data = await logout();
+            dispatch(setUser(null));
+        } catch {
+            dispatch(setUser(null))
+            dispatch(setError(null));
+
+        }finally{
+            dispatch(setLoading(false));
+        }
+    }
+
+
+    return { user, loading, error, handleRegister, handleLogin, handleGetme, handleLogout };
 }

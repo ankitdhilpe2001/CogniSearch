@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../auth/hook/useAuth.js";
 
 const ChatItem = ({ title, active = false, onClick, onDelete }) => (
   <div
@@ -50,11 +52,30 @@ const NavItem = ({ icon, label, active = false, onClick }) => (
   </button>
 );
 
-const BOTTOM_NAV = [
-  { id: "settings", label: "Settings", icon: <i className="ri-settings-3-line text-[18px]" aria-hidden="true" /> },
-];
+const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat, onLogout }) => {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef(null);
+  const navigate = useNavigate();
+  const { handleLogout } = useAuth();
 
-const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat }) => {
+  const handleLogoutClick = async () => {
+    setSettingsOpen(false);
+    await handleLogout();
+    onLogout?.();
+    navigate("/", { replace: true });
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setSettingsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const chatList = useMemo(() => {
     return Object.values(chats).sort(
       (a, b) => new Date(b.updatedAt ?? 0) - new Date(a.updatedAt ?? 0)
@@ -111,14 +132,28 @@ const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat
       </div>
 
       <div className="pt-2 border-t border-outline">
-        {BOTTOM_NAV.map((item) => (
+        {/* Settings button with dropdown */}
+        <div className="relative" ref={settingsRef}>
+          {/* Dropdown — renders above the button */}
+          {settingsOpen && (
+            <div className="absolute bottom-full mb-1 left-0 w-full bg-surface border border-outline rounded-lg shadow-lg py-1 z-50">
+              <button
+                onClick={handleLogoutClick}
+                className="flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm font-medium transition-all duration-150 border-none text-left bg-transparent text-secondary hover:bg-red-500/10 hover:text-red-400"
+              >
+                <i className="ri-logout-box-r-line text-[16px]" aria-hidden="true" />
+                Logout
+              </button>
+            </div>
+          )}
+
           <NavItem
-            key={item.id}
-            icon={item.icon}
-            label={item.label}
-            onClick={() => {}}
+            icon={<i className="ri-settings-3-line text-[18px]" aria-hidden="true" />}
+            label="Settings"
+            active={settingsOpen}
+            onClick={() => setSettingsOpen((prev) => !prev)}
           />
-        ))}
+        </div>
       </div>
 
     </aside>
