@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
-import { generateResponse, generateChatTitle } from "../services/ai.service.js";
+import { getIO } from "../sockets/server.sockets.js";
+import {
+  generateChatTitle,
+  generateResponseStream,
+} from "../services/ai.service.js";
 import Chat from "../models/chat.model.js";
 import Message from "../models/message.model.js";
 
 //send message to ai model
+// REPLACE YOUR sendMessage FUNCTION IN chat.controller.js WITH THIS
 async function sendMessage(req, res, next) {
   try {
-    const { message, chatId } = req.body; // will receive message/chatId from body
+    const { message, chatId } = req.body;
     if (!message?.trim()) {
       const error = new Error("Message is required");
       error.statusCode = 400;
@@ -22,45 +27,91 @@ async function sendMessage(req, res, next) {
         throw error;
       }
     } else {
-      //If no chat found menas this is the first message of the user.
-      const title = await generateChatTitle(message); //generate the title and chat on first message;
+      const title = await generateChatTitle(message);
       chat = await Chat.create({
         user: req.user.id,
         title,
       });
     }
 
-    //chat is used to save the user message with chatId
-    // save user message first, then load full history for this chat
+    // Save user message
     await Message.create({
       chat: chat._id,
       role: "user",
       content: message,
     });
 
+    // Get chat history
     const messages = await Message.find({ chat: chat._id }).sort({
       createdAt: 1,
     });
 
-    //Model is invoked on the given message
-    const result = await generateResponse(messages);
+    // Get Socket.io instance
+    const io = getIO();
+    const socketId = req.headers["x-socket-id"];
 
-    // Model return response in text which is saved as message role : assistant
-    const aiMessage = await Message.create({
-      chat: chat._id,
-      role: "assistant",
-      content: result,
-    });
+    // Stream the response
+    let fullResponse = "";
+    const onChunk = (chunk) => {
+      fullResponse += chunk;
+      // Emit each chunk to the specific user
+      if (socketId) {
+        io.to(socketId).emit("stream:chunk", {
+          chunk: chunk,
+          fullText: fullResponse,
+        });
+      }
+    };
 
-    return res.status(201).json({
-      chatId: chat._id,
-      title: chat.title,
-      aimessage: aiMessage.content,
-    });
+    try {
+      await generateResponseStream(messages, onChunk);
+
+      if (!fullResponse || fullResponse.trim() === "") {
+        fullResponse = "I need to search the internet for that, but my search tool isn't fully connected yet!";
+        if (socketId) {
+          io.to(socketId).emit("stream:chunk", {
+            chunk: fullResponse,
+            fullText: fullResponse,
+          });
+        }
+      }
+
+      // Save the complete AI message
+      const aiMessage = await Message.create({
+        chat: chat._id,
+        role: "assistant",
+        content: fullResponse,
+      });
+
+      // Signal completion
+      if (socketId) {
+        io.to(socketId).emit("stream:complete", {
+          chatId: chat._id,
+          messageId: aiMessage._id,
+          finalMessage: fullResponse,
+        });
+      }
+
+      return res.status(201).json({
+        chatId: chat._id,
+        title: chat.title,
+        aimessage: aiMessage.content,
+      });
+    } catch (error) {
+      if (socketId) {
+        io.to(socketId).emit("stream:error", {
+          error: error.message,
+        });
+      }
+      throw error;
+    }
   } catch (error) {
     next(error);
   }
 }
+
+// KEEP YOUR OTHER FUNCTIONS - getChats, getMessages, deleteChat
+// (unchanged from your original file)
 
 //fetch chats
 async function getChats(req, res, next) {

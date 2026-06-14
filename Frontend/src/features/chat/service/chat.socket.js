@@ -1,16 +1,27 @@
 import { io } from "socket.io-client";
 
+//module-level socket instance
+let socket = null;
+
+//getter to always access the current socket instance
+export const getSocket = () => socket;
 
 //initializes the socket connection to backend. Connect frontend client to real-time backend server.
-export const initializeSocket = ()=>{
+export const initializeSocket = () => {
+    //avoid creating duplicate connections
+    if (socket) return socket;
 
     //This creates a real-time connection with backend.
-    const socket = io("http://localhost:3000",{
-        withCredentials:true,
-    })
+    socket = io("http://127.0.0.1s:3000", {
+        withCredentials: true,
+    });
 
-    //As soon as the client is connected 
-    socket.on("connect",()=>{
-        console.log("Connected to socket.io server")
-    })
-}
+    socket.on("connect", () => {
+        console.log("Connected to socket.io server");
+    });
+
+    return socket;
+
+    //As soon as the client is connected
+};
+

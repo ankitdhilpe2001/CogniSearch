@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-import { useChat } from "../hook/useChat.js";
+import { useStreamChat } from "../hook/useStreamChat.js";
 
 import Sidebar from "../components/Sidebar.jsx";
 
@@ -22,13 +22,12 @@ const Dashboard = () => {
     loading,
     error,
     currentChatId,
-  } = useChat();
+  } = useStreamChat();
 
   const [query, setQuery] = useState("");
 
-  const activeChat = currentChatId ? chats[String(currentChatId)] : null;
-
-  const messages = activeChat?.messages ?? [];
+  const currentChat = currentChatId ? chats[String(currentChatId)] : null;
+  const messages = currentChat?.messages ?? [];
 
   const hasMessages = messages.length > 0;
 
@@ -137,9 +136,9 @@ const Dashboard = () => {
 
         {hasMessages ? (
           <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-8">
-            {activeChat?.title && (
+            {currentChat?.title && (
               <h2 className="mb-6 text-center text-sm font-medium text-secondary">
-                {activeChat.title}
+                {currentChat.title}
               </h2>
             )}
 
