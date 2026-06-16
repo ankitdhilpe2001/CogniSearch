@@ -4,6 +4,7 @@ import Register from "../features/auth/pages/Register";
 import Dashboard from "../features/chat/pages/Dashboard";
 import Protected from "../features/auth/components/Protected";
 import PublicRoute from "../features/auth/components/PublicRoute";
+import UploadPdf from "../features/chat/pages/UploadPdf";
 
 export const router = createBrowserRouter([
     {
@@ -24,8 +25,16 @@ export const router = createBrowserRouter([
             <Protected>
                 <Dashboard />
             </Protected>
-        ),
+        )
     },
+
+    {
+        path:"/upload-pdf",
+        element:(
+            <UploadPdf/>
+        )
+    },
+
     {
         path: "/register",
         element: <Register />,

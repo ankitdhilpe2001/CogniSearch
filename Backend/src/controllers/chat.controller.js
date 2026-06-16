@@ -6,6 +6,9 @@ import {
 } from "../services/ai.service.js";
 import Chat from "../models/chat.model.js";
 import Message from "../models/message.model.js";
+import { PDFParse } from "pdf-parse";
+import { uploadFileToRAG } from "../services/RAG.service.js";
+import { answerQuestion } from "../services/RAG.service.js";
 
 //send message to ai model
 // REPLACE YOUR sendMessage FUNCTION IN chat.controller.js WITH THIS
@@ -34,7 +37,7 @@ async function sendMessage(req, res, next) {
       });
     }
 
-    // Save user message
+    // Save user message in message collection with chatId
     await Message.create({
       chat: chat._id,
       role: "user",
@@ -67,7 +70,8 @@ async function sendMessage(req, res, next) {
       await generateResponseStream(messages, onChunk);
 
       if (!fullResponse || fullResponse.trim() === "") {
-        fullResponse = "I need to search the internet for that, but my search tool isn't fully connected yet!";
+        fullResponse =
+          "I need to search the internet for that, but my search tool isn't fully connected yet!";
         if (socketId) {
           io.to(socketId).emit("stream:chunk", {
             chunk: fullResponse,
@@ -109,9 +113,6 @@ async function sendMessage(req, res, next) {
     next(error);
   }
 }
-
-// KEEP YOUR OTHER FUNCTIONS - getChats, getMessages, deleteChat
-// (unchanged from your original file)
 
 //fetch chats
 async function getChats(req, res, next) {
@@ -190,4 +191,50 @@ async function deleteChat(req, res, next) {
   }
 }
 
-export default { sendMessage, getChats, getMessages, deleteChat };
+async function uploadFile(req, res, next) {
+  try {
+
+    const userId = req.user.id;
+    if (!req.file) {
+      const error = new Error("PDF file is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (req.file.mimetype !== "application/pdf") {
+      const error = new Error("Only PDF files are allowed");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const result = await uploadFileToRAG(req.file, userId)
+
+
+    res.status(200).json({
+      success: true,
+      message: "PDF processed successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+export async function askQuestion(req, res, next) {
+  try {
+    const { query } = req.body;
+    const userId = req.user.id;
+
+    const answer = await answerQuestion(query, userId);
+
+    res.status(200).json({
+      success: true,
+      answer,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default { sendMessage, getChats, getMessages, deleteChat, uploadFile, askQuestion };

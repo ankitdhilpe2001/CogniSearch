@@ -95,6 +95,20 @@ const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat
       </div>
 
       <button
+        onClick={() => navigate("/upload-pdf")}
+        className="
+          flex items-center gap-2 w-full mb-2
+          bg-foreground text-background
+          rounded-[10px] px-4 py-[11px]
+          text-sm font-semibold
+          transition-opacity duration-150 hover:opacity-85
+          border-none cursor-pointer
+        "
+      >
+        Upload PDF
+      </button>
+      
+      <button
         onClick={onNewThread}
         className="
           flex items-center gap-2 w-full mb-2
@@ -108,6 +122,7 @@ const Sidebar = ({ chats, currentChatId, onNewThread, onSelectChat, onDeleteChat
         <i className="ri-add-line text-lg leading-none" aria-hidden="true" />
         New Chat
       </button>
+
 
       <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 -mx-1 px-1">
         <p className="px-2 mb-2 font-mono text-[10px] uppercase tracking-wider text-muted">

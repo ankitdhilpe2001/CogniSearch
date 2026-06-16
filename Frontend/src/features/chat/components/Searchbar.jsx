@@ -25,18 +25,6 @@ const Searchbar = ({ value, onChange, onSubmit, loading = false }) => {
     />
 
     <div className="flex items-center gap-2">
-      <button
-        className="
-          flex items-center gap-1.5 bg-surface-bright border-none rounded-full
-          px-3 py-[6px] font-mono text-[11px] font-medium text-secondary tracking-wide
-          transition-all duration-150 hover:bg-accent/15 hover:text-foreground cursor-pointer
-        "
-      >
-        <i className="ri-attachment-2-line text-[13px]" aria-hidden="true" />{" "}
-        ATTACH
-      </button>
-
-      <div className="flex-1" />
 
 
       {/* Send */}

@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-//module-level socket instance
+//module-level socket instance  
 let socket = null;
 
 //getter to always access the current socket instance
@@ -12,7 +12,7 @@ export const initializeSocket = () => {
     if (socket) return socket;
 
     //This creates a real-time connection with backend.
-    socket = io("http://127.0.0.1s:3000", {
+    socket = io("http://localhost:3000", {
         withCredentials: true,
     });
 
